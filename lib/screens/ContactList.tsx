@@ -3,12 +3,12 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet, Image } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { fetchContacts, selectContact } from '../slices/contactSlices';
+import { fetchContacts } from '../slices/contactSlices';
 import { RootState } from '../store/store';
 import { StackNavigation } from '../router/router';
 import axios from 'axios';
 import { ApiResponse, Contact } from '../types/types';
-import { rHeight } from '../constants/variables';
+import { rHeight, rWidth } from '../constants/variables';
 
 const ContactList: React.FC = () => {
     const navigation = useNavigation<StackNavigation>();
@@ -19,37 +19,52 @@ const ContactList: React.FC = () => {
         dispatch(fetchContacts());
     }, []);
 
-    const handleContactPress = (contactId?: string) => {
-        dispatch(selectContact(contactId));
-        navigation.navigate('ContactDetail');
+    const handleContactPress = (contact: Contact) => {
+        navigation.navigate('ContactDetail', {data: contact});
     };
 
     return (
-        <View style={{flex:1,backgroundColor: 'maroon',}}>
-            <Text style={styles.header}>Contact App</Text>
-            <View style={styles.listContainer}>
-
+        <View style={{flex:1,backgroundColor: 'white',}}>
             <TouchableOpacity
-                onPress={() => navigation.navigate('AddContact')}
-                style={{...styles.itemContainer, backgroundColor: 'orange', justifyContent:'center', borderRadius: 10}}
-            >
-                <Text style={{...styles.text, color:'white', fontWeight: 'bold' }}>Add New Contact</Text>
+                    onPress={() => navigation.navigate('AddContact')}
+                    style={{ position: 'absolute', top: -rHeight(2), right: rHeight(3) }}
+                >
+                <Text style={{...styles.header, color:'lightblue', fontWeight:'200', fontSize: 50}}>+</Text>
             </TouchableOpacity>
-            {state.loading ? <ActivityIndicator size={50} color={'white'}/>
-            : <FlatList
-                data={state.contacts}
-                style={{maxHeight: rHeight(84)}}
+            <View style={{flexDirection:'row', justifyContent: 'space-between'}}>
+                <Text style={styles.header}>Contacts</Text>
+            </View>
+            
+            
+            <View style={styles.listContainer}>
+            {state.loading && <ActivityIndicator size={50} color={'lightblue'}/>}
+            <FlatList
+                data={[...state.contacts,]}
+                style={{
+                    paddingHorizontal: rWidth(2)
+                }}
                 renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => handleContactPress(item.id)} style={styles.itemContainer}>
-                        <Image source={{uri: item.photo}} style={{width: rHeight(7), height: rHeight(7), borderRadius: 50}}/>
-                        <View style={{marginStart: 10}}>
-                            <Text style={styles.text}>{item.firstName} {item.lastName}</Text>
-                            <Text style={styles.text}>Age: {item.age}</Text>
-                        </View>          
-                    </TouchableOpacity>
+                    <>
+                    <Text style={styles.label}>{item.label?.toUpperCase()}</Text>
+                    
+                    {item.data.map(e => 
+                        <>
+                        <TouchableOpacity onPress={() => handleContactPress(e)} style={styles.itemContainer}>
+                            <View style={{flexDirection:'row'}}>
+                            <Image source={{ uri: e.photo }} style={{ width: rHeight(7), height: rHeight(7), borderRadius: 10 }} />
+                            <View style={{ marginStart: 10 }}>
+                                <Text style={styles.text}>{e.firstName} {e.lastName}</Text>
+                                <Text style={styles.text}>Age: {e.age}</Text>
+                            </View>
+                            </View>
+                        </TouchableOpacity>
+                        <View style={{ height: 1, width: '100%', backgroundColor: 'lightgray' }} />
+                        </>
+                    )}
+                    </>
                 )}
-                keyExtractor={item => `${item.id}`}
-            />}
+                keyExtractor={item => `${item.label}`}
+            />
             </View>
         </View>
     );
@@ -57,33 +72,29 @@ const ContactList: React.FC = () => {
 
 const styles = StyleSheet.create({
     header: {
-        fontSize: 25,
+        fontSize: 30,
         fontWeight: 'bold',
-        color: 'white',
-        textAlign: 'center',
-        marginTop: rHeight(3)
+        color: 'black',
+        marginTop: rHeight(3),
+        marginStart: rWidth(5)
     },
     listContainer: {
-        padding: 10,
-        // backgroundColor: 'white',
+        flex: 1,
+        marginHorizontal: 10
     },
     itemContainer: {
         flexDirection: 'row',
-        padding: 10,
-        margin: 10,
         backgroundColor: 'white',
-        marginBottom: 10,
+        marginVertical: 20,
         alignItems: 'center',
-        shadowColor: "#000",
-        borderRadius: 20,
         maxHeight: 500,
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+        justifyContent: 'space-between'
+    },
+    label: {
+        fontSize: 22,
+        color: 'black',
+        fontWeight: 'bold',
+        marginTop: rHeight(1)
     },
     text: {
         fontSize: 18,

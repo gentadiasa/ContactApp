@@ -1,4 +1,9 @@
 
+export interface ListContact {
+    label?: string;
+    data: Contact[];
+}
+
 export interface Contact {
     id?: string;
     firstName: string;

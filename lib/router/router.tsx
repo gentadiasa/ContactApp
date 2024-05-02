@@ -9,7 +9,7 @@ import { Contact } from '../types/types';
 export type RootStackParamList = {
     ContactList: undefined;
     AddContact: undefined | {data?: Contact}
-    ContactDetail: undefined;
+    ContactDetail: {data: Contact};
   };
   
 export type StackNavigation = NavigationProp<RootStackParamList>;

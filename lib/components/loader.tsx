@@ -26,7 +26,7 @@ const Loader: React.FC = () =>
 
             <ActivityIndicator
                 size={rHeight(10)}
-                color={'maroon'}
+                color={'lightblue'}
                 style={{ backgroundColor: 'white', borderRadius: 50 }}
             />
         </View>
